@@ -1,10 +1,10 @@
 package com.slj.api;
 
-import com.slj.core.annotation.Hello;
+import com.slj.core.annotation.CodeGen;
 import lombok.Data;
 
 @Data
-@Hello(packagePath = "com.slj.api.dao")
+@CodeGen(packagePath = "com.slj.api.dao")
 public class Test {
 
     int id;

@@ -1,13 +1,13 @@
 package com.slj.api.dao;
 
 import com.piaoniu.annotations.DaoGen;
-import com.slj.api.User;
+import com.slj.api.Test;
 import java.lang.String;
 import org.apache.ibatis.annotations.Param;
 
 @DaoGen
-public interface UserDao {
-  User findByname(@Param("name") String name);
+public interface TestDao {
+  Test findByid(@Param("id") int id);
 
-  User findByid(@Param("id") int id);
+  Test findByname(@Param("name") String name);
 }
