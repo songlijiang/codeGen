@@ -1,8 +1,8 @@
 package com.slj.core;
 
-import com.slj.core.annotation.Hello;
+import com.slj.core.annotation.CodeGen;
 
-@Hello
+@CodeGen
 public class Test {
 
 

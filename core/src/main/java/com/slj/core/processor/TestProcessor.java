@@ -1,7 +1,7 @@
 package com.slj.core.processor;
 
 import com.google.auto.service.AutoService;
-import com.slj.core.annotation.Hello;
+import com.slj.core.annotation.CodeGen;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
@@ -11,7 +11,6 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import java.io.File;
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,7 +28,7 @@ import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Types;
 
-@SupportedAnnotationTypes({"com.slj.core.annotation.Hello"})
+@SupportedAnnotationTypes({"com.slj.core.annotation.CodeGen"})
 @SupportedSourceVersion(value = SourceVersion.RELEASE_8)
 @AutoService(Processor.class)
 public class TestProcessor extends AbstractProcessor{
@@ -83,15 +82,15 @@ public class TestProcessor extends AbstractProcessor{
         System.out.println(roundEnv.processingOver());
 
         //AnnotationSpec lombok = AnnotationSpec.builder(Data.class).build();
-        roundEnv.getElementsAnnotatedWith(Hello.class).stream().forEach((e)->{
+        roundEnv.getElementsAnnotatedWith(CodeGen.class).stream().forEach((e)->{
             System.out.println("element"+e+e.getKind()+e.getSimpleName());
 
             if(e.getKind().isClass() ){
                 try {
 
-                    Hello hello = e.getAnnotation(Hello.class);
-                    String packagePath = hello.packagePath();
-                    String projectPath = hello.projectPath();
+                    CodeGen codeGen = e.getAnnotation(CodeGen.class);
+                    String packagePath = codeGen.packagePath();
+                    String projectPath = codeGen.projectPath();
 
                     List<FieldSpec> fieldSpecList =e.getEnclosedElements().stream()
                         .filter(element->element  instanceof VariableElement)
@@ -100,10 +99,10 @@ public class TestProcessor extends AbstractProcessor{
                             return FieldSpec.builder(TypeName.get(element1.asType()),element1.getSimpleName().toString(),Modifier.PUBLIC,Modifier.FINAL,Modifier.STATIC).build();
                         }).collect(Collectors.toList());
                     String javaFileName = e.getSimpleName().toString()+"Dao";
-                    Class paramClass = getParamAnnotationClass(hello);
+                    Class paramClass = getParamAnnotationClass(codeGen);
                     TypeSpec typeSpec = TypeSpec.interfaceBuilder(javaFileName)
                         .addModifiers(Modifier.PUBLIC)
-                        .addAnnotation(getClassAnnotationClass(hello))
+                        .addAnnotation(getClassAnnotationClass(codeGen))
                         //.addFields(fieldSpecList)
                         .addMethods(fieldSpecList.stream().map(fieldSpec -> {
                             return MethodSpec.methodBuilder("findBy"+fieldSpec.name)
@@ -142,14 +141,14 @@ public class TestProcessor extends AbstractProcessor{
         return false;
     }
 
-    private  Class getClassAnnotationClass(Hello annotation) throws Exception{
+    private  Class getClassAnnotationClass(CodeGen annotation) throws Exception{
         TypeMirror clazz = getClassType(annotation);
         TypeElement typeElement = asTypeElement(clazz);
         String sourceFQCN = typeElement.getQualifiedName().toString();
         return Class.forName(sourceFQCN);
     }
 
-    private  Class getParamAnnotationClass(Hello annotation) throws Exception{
+    private  Class getParamAnnotationClass(CodeGen annotation) throws Exception{
         TypeMirror clazz = getParamType(annotation);
         TypeElement typeElement = asTypeElement(clazz);
         String sourceFQCN = typeElement.getQualifiedName().toString();
@@ -158,7 +157,7 @@ public class TestProcessor extends AbstractProcessor{
 
 
 
-    private  TypeMirror getClassType(Hello annotation) {
+    private  TypeMirror getClassType(CodeGen annotation) {
         try {
             annotation.daoAnnotation(); // this should throw
         } catch (MirroredTypeException mte) {
@@ -166,7 +165,7 @@ public class TestProcessor extends AbstractProcessor{
         }
         return null; // can this ever happen - think , think and think again??
     }
-    private  TypeMirror getParamType(Hello annotation) {
+    private  TypeMirror getParamType(CodeGen annotation) {
         try {
             annotation.paramAnnotation(); // this should throw
         } catch (MirroredTypeException mte) {
